@@ -22,7 +22,8 @@ import {
   IconBook,
   IconServer,
   IconFileArrowRight,
-  IconAppWindow
+  IconAppWindow,
+  IconRefresh
 } from '@tabler/icons';
 import OpenAPISyncIcon from 'components/Icons/OpenAPISync';
 import { toggleCollection, collapseFullCollection, clearSidebarSelection } from 'providers/ReduxStore/slices/collections';
@@ -35,6 +36,7 @@ import NewRequest from 'components/Sidebar/NewRequest';
 import NewFolder from 'components/Sidebar/NewFolder';
 import NewApp from 'components/Sidebar/NewApp';
 import RemoveCollections from '../RemoveCollections';
+import ReloadCollections from '../ReloadCollections';
 import MoveToWorkspace from '../MoveToWorkspace';
 import { isPathExternalToBasePath } from 'utils/common/path';
 import { doesCollectionHaveItemsMatchingSearchText } from 'utils/collections/search';
@@ -71,6 +73,7 @@ const CollectionRow = ({ collection, searchText, openBulkMenu, children, isColle
   const [showShareCollectionModal, setShowShareCollectionModal] = useState(false);
   const [showGenerateDocumentationModal, setShowGenerateDocumentationModal] = useState(false);
   const [showRemoveCollectionModal, setShowRemoveCollectionModal] = useState(false);
+  const [showReloadCollectionModal, setShowReloadCollectionModal] = useState(false);
   const [showMoveToWorkspaceModal, setShowMoveToWorkspaceModal] = useState(false);
   const [showCreateMockServerModal, setShowCreateMockServerModal] = useState(false);
   const [dropType, setDropType] = useState(null);
@@ -487,6 +490,18 @@ const CollectionRow = ({ collection, searchText, openBulkMenu, children, isColle
       label: getRevealInFolderLabel(),
       onClick: handleShowInFolder
     },
+    ...(collection.mountStatus === 'mounted'
+      ? [
+          {
+            id: 'reload-from-disk',
+            leftSection: IconRefresh,
+            label: 'Reload from Disk',
+            onClick: () => {
+              setShowReloadCollectionModal(true);
+            }
+          }
+        ]
+      : []),
     ...(isMockServerEnabled ? [{
       id: 'create-mock-server',
       leftSection: IconServer,
@@ -553,6 +568,9 @@ const CollectionRow = ({ collection, searchText, openBulkMenu, children, isColle
       )}
       {showRemoveCollectionModal && (
         <RemoveCollections collectionUid={collection.uid} onClose={() => setShowRemoveCollectionModal(false)} />
+      )}
+      {showReloadCollectionModal && (
+        <ReloadCollections collectionUids={[collection.uid]} onClose={() => setShowReloadCollectionModal(false)} />
       )}
       {showMoveToWorkspaceModal && (
         <MoveToWorkspace collectionUid={collection.uid} onClose={() => setShowMoveToWorkspaceModal(false)} />

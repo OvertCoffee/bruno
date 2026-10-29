@@ -20,6 +20,7 @@ import { buildCollectionHeaderLocators } from './collection/collection-header';
 import { buildCollectionAppLocators } from './collection/collection-app';
 import { buildCollectionProxyLocators } from './collection/proxy';
 import { buildCollectionRunLocators } from './collection/collection-run';
+import { buildReloadFromDiskLocators } from './collection/reload-from-disk';
 import { buildCodeMirrorLocators } from './code-mirror';
 import { buildEnvironmentLocators } from './environments';
 import { buildTimelineHeaderLocators } from './timeline-headers';
@@ -82,6 +83,7 @@ export const buildCommonLocators = (page: Page) => ({
   createWorkspaceModal: buildCreateWorkspaceModalLocators(page),
   cloneGitRepository: buildCloneGitRepositoryLocators(page),
   migrateToYml: buildMigrateToYmlLocators(page),
+  reloadFromDisk: buildReloadFromDiskLocators(page),
   environment: buildEnvironmentLocators(page),
   variablesTab: buildVariablesTabLocators(page),
   actions: {

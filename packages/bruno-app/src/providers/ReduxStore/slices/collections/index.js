@@ -303,6 +303,18 @@ export const collectionsSlice = createSlice({
         }
       }
     },
+    // Drops everything read from disk, along with unsaved drafts layered over it, so the next
+    // mount rebuilds the collection from the files alone.
+    resetCollectionTree: (state, action) => {
+      const collection = findCollectionByUid(state.collections, action.payload.collectionUid);
+      if (collection) {
+        collection.items = [];
+        collection.environments = [];
+        collection.draft = null;
+        collection.environmentsDraft = null;
+        delete collection.root;
+      }
+    },
     updateCollectionLoadingState: (state, action) => {
       const collection = findCollectionByUid(state.collections, action.payload.collectionUid);
       if (collection) {
@@ -4316,6 +4328,7 @@ export const collectionsSlice = createSlice({
 export const {
   createCollection,
   updateCollectionMountStatus,
+  resetCollectionTree,
   updateCollectionLoadingState,
   collectionLoadedFromTree,
   setCollectionSecurityConfig,
