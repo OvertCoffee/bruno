@@ -7,6 +7,7 @@ export const buildTitleBarLocators = (page: Page) => ({
   openWorkspaceOption: () => page.getByTestId('workspace-menu-open-workspace'),
   importWorkspaceOption: () => page.getByTestId('workspace-menu-import-workspace'),
   manageWorkspacesOption: () => page.getByTestId('workspace-menu-manage-workspaces'),
+  homeButton: () => page.getByTestId('app-titlebar').locator('.home-button'),
   responseLayoutToggle: () => page.getByTestId('app-titlebar').getByTestId('response-layout-toggle-btn')
 });
 

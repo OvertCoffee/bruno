@@ -18,7 +18,8 @@ import {
   IconFileOff,
   IconCode,
   IconAppWindow,
-  IconTransform
+  IconTransform,
+  IconRefresh
 } from '@tabler/icons';
 import IconSparkles from 'components/Icons/IconSparkles';
 import OpenAPISyncIcon from 'components/Icons/OpenAPISync';
@@ -39,6 +40,7 @@ import toast from 'react-hot-toast';
 import Dropdown from 'components/Dropdown';
 import MenuDropdown from 'ui/MenuDropdown';
 import CloseWorkspace from 'components/Sidebar/CloseWorkspace';
+import ReloadCollections from 'components/Sidebar/Collections/Collection/ReloadCollections';
 import CreateWorkspace from 'components/WorkspaceSidebar/CreateWorkspace';
 import EnvironmentSelector from 'components/Environments/EnvironmentSelector';
 import ToolHint from 'components/ToolHint';
@@ -116,6 +118,7 @@ const CollectionHeader = ({ collection, isScratchCollection }) => {
   const [workspaceNameInput, setWorkspaceNameInput] = useState('');
   const [workspaceNameError, setWorkspaceNameError] = useState('');
   const [closeWorkspaceModalOpen, setCloseWorkspaceModalOpen] = useState(false);
+  const [collectionUidsToReload, setCollectionUidsToReload] = useState(null);
   const [createWorkspaceModalOpen, setCreateWorkspaceModalOpen] = useState(false);
   const [showCreateMockServerModal, setShowCreateMockServerModal] = useState(false);
 
@@ -357,6 +360,15 @@ const CollectionHeader = ({ collection, isScratchCollection }) => {
     setCloseWorkspaceModalOpen(true);
   };
 
+  const handleReloadWorkspaceClick = () => {
+    workspaceActionsRef.current?.hide();
+    if (!mountedCollections.length) {
+      toast.error('No open collections to reload');
+      return;
+    }
+    setCollectionUidsToReload(mountedCollections.map((c) => c.uid));
+  };
+
   const handleShowInFolder = () => {
     workspaceActionsRef.current?.hide();
     const pathname = currentWorkspace?.pathname;
@@ -523,6 +535,13 @@ const CollectionHeader = ({ collection, isScratchCollection }) => {
         />
       )}
 
+      {collectionUidsToReload && (
+        <ReloadCollections
+          collectionUids={collectionUidsToReload}
+          onClose={() => setCollectionUidsToReload(null)}
+        />
+      )}
+
       {createWorkspaceModalOpen && (
         <CreateWorkspace onClose={handleAdvancedCreateClose} />
       )}
@@ -679,6 +698,12 @@ const CollectionHeader = ({ collection, isScratchCollection }) => {
                   <IconUpload size={16} strokeWidth={1.5} />
                 </div>
                 <span>Export</span>
+              </div>
+              <div className="dropdown-item" data-testid="reload-workspace-from-disk" onClick={handleReloadWorkspaceClick}>
+                <div className="dropdown-icon">
+                  <IconRefresh size={16} strokeWidth={1.5} />
+                </div>
+                <span>Reload from Disk</span>
               </div>
               <div className="dropdown-item" onClick={handleCloseWorkspaceClick}>
                 <div className="dropdown-icon">

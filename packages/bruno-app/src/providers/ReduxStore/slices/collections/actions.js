@@ -43,6 +43,7 @@ import {
   applyDefaultEnvironment as _applyDefaultEnvironment,
   sortCollections as _sortCollections,
   updateCollectionMountStatus,
+  resetCollectionTree,
   moveCollection,
   deleteItem as _deleteItemFromState,
   brunoConfigUpdateEvent as _brunoConfigUpdateEvent,
@@ -3562,6 +3563,37 @@ export const mountCollection
           });
       });
     };
+
+// Recovers from file-watcher events that never arrived: unsaved changes are discarded and the
+// collection is re-read from disk. Unmounted collections have nothing loaded, so they're left alone.
+export const reloadCollectionFromDisk = (collectionUid) => async (dispatch, getState) => {
+  const state = getState();
+  const collection = findCollectionByUid(state.collections.collections, collectionUid);
+  if (!collection) {
+    throw new Error('Collection not found');
+  }
+  if (collection.mountStatus !== 'mounted') {
+    return;
+  }
+
+  const activeWorkspace = state.workspaces.workspaces.find((w) => w.uid === state.workspaces.activeWorkspaceUid);
+
+  await callIpc('renderer:unmount-collection', { collectionUid, collectionPathname: collection.pathname });
+
+  // Transient requests live in a temp directory that a fresh mount replaces, so their tabs can't survive
+  const transientTabUids = getState().tabs.tabs
+    .filter((t) => t.collectionUid === collectionUid && t.isTransient)
+    .map((t) => t.uid);
+  dispatch(_closeTabs({ tabUids: transientTabUids, reopenable: false }));
+  dispatch(resetCollectionTree({ collectionUid }));
+  await dispatch(mountCollection({
+    collectionUid,
+    collectionPathname: collection.pathname,
+    brunoConfig: collection.brunoConfig,
+    skipTabRestore: true,
+    workspacePathname: activeWorkspace?.pathname || null
+  }));
+};
 
 export const showInFolder = (collectionPath) => () => {
   return new Promise((resolve, reject) => {
